@@ -46,9 +46,20 @@ public class FileStorageService {
         }
     }
     
-    public Resource loadFileAsResource(String fileName) {
+public Resource loadFileAsResource(String fileName) {
+        // Validate file name using a whitelist approach
+        String validChars = "^[a-zA-Z0-9._-]*$";
+        if (!Pattern.matches(validChars, fileName)) {
+            throw new RuntimeException("Invalid file name");
+        }
+
         try {
+            // Use a dynamic file storage directory
             Path filePath = Paths.get(fileStorageDir, fileName);
+            // Ensure that the file path is not accessible outside the designated directory
+            if (!filePath.normalize().startsWith(Paths.get(fileStorageDir).toAbsolutePath().normalize())) {
+                throw new RuntimeException("Invalid file path");
+            }
             LOG.debug("gonna read file from {}" ,filePath.toString());
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
@@ -59,6 +70,8 @@ public class FileStorageService {
         } catch (MalformedURLException ex) {
             throw new RuntimeException("File not found " + fileName, ex);
         }
+    }
+
     }
 
 }
