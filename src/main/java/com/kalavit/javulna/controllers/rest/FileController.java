@@ -49,10 +49,16 @@ public class FileController {
                 file.getContentType(), file.getSize());
     }
 
-    @GetMapping("/downloadFile")
+@GetMapping("/downloadFile")
     public ResponseEntity<Resource> downloadFile(
             @RequestParam(name = "fileName") String fileName,
             HttpServletRequest request) {
+        // Validate file name using a whitelist approach
+        String validChars = "^[a-zA-Z0-9._-]*$";
+        if (!Pattern.matches(validChars, fileName)) {
+            throw new RuntimeException("Invalid file name");
+        }
+
         // Load file as Resource
         Resource resource = fileStorageService.loadFileAsResource(fileName);
 
@@ -74,4 +80,5 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
+
 }
