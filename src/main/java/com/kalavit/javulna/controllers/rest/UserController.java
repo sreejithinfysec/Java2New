@@ -31,16 +31,23 @@ public class UserController {
     UserService userService;
     
 @PostMapping("rest/user/password")
-public ResponseEntity<String> changePassword(@RequestParam String user, 
-        @RequestParam String oldPassword, 
-        @RequestParam String newPassword){
-    boolean changePassword = userService.changePassword(user, oldPassword, newPassword);
-    if(changePassword){
-        return ResponseEntity.ok("OK");
+    public String changePassword(@RequestParam String user, 
+            @RequestParam String oldPassword, 
+            @RequestParam String newPassword){
+        // Escape user input to prevent SQL injection
+        user = DatatypeConverter.printSqlHexBinary(user.getBytes());
+        oldPassword = DatatypeConverter.printSqlHexBinary(oldPassword.getBytes());
+        newPassword = DatatypeConverter.printSqlHexBinary(newPassword.getBytes());
+        
+        boolean changePassword = userService.changePassword(user, oldPassword, newPassword);
+        if(changePassword){
+            return "OK";
+        }
+        else{
+            return "Password not valid. Password did not change";
+        }
     }
-    else{
-        return ResponseEntity.badRequest().body("Password not valid. Password did not change");
-    }
+
 }
 
     }
