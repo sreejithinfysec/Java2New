@@ -30,10 +30,10 @@ public class UserController {
     @Autowired
     UserService userService;
     
-    @PostMapping("rest/user/password")
-    public String changePassword(@RequestParam String user, 
-            @RequestParam String oldPassword, 
-            @RequestParam String newPassword){
+@PostMapping("rest/user/password")
+    public String changePassword(@RequestParam(required = true) String user, 
+            @RequestParam(required = true) String oldPassword, 
+            @RequestParam(required = true) String newPassword){
         boolean changePassword = userService.changePassword(user, oldPassword, newPassword);
         if(changePassword){
             return "OK";
@@ -41,6 +41,8 @@ public class UserController {
         else{
             return "Password not valid. Password did not change";
         }
+    }
+
     }
     
     @PostMapping("rest/user")
