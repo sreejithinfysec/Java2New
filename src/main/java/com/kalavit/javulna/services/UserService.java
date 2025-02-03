@@ -74,14 +74,17 @@ public class UserService {
     }
 
 @Transactional
-    public boolean changePassword(String name, String oldPassword, String newPassword) {
-        User u = uDao.findUserByName(name);
-        if (u != null) {
-            if (u.getPassword().equals(oldPassword)) {
-                String pwdChangeXml = createXml(name, newPassword);
-                return passwordChangeService.changePassword(pwdChangeXml);
-            }
+public boolean changePassword(String name, String oldPassword, String newPassword) {
+    User u = uDao.findUserByName(name); 
+    if (u != null) {
+        if (u.getPassword().equals(oldPassword)) {
+            String pwdChangeXml = createXml(name, newPassword);
+            return passwordChangeService.changePassword(pwdChangeXml);
         }
+    }
+    return false;
+}
+
         return false;
     }
 
@@ -89,7 +92,17 @@ public class UserService {
     }
 
 private String createXml(String name, String newPassword) {
-        try {
+    try {
+        String xmlString = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("xml/PasswordChange.xml"), "UTF-8");
+        xmlString = xmlString.replace("PWD_TO_REPLACE", newPassword);
+        xmlString = xmlString.replace("USERNAME_TO_REPLACE", name);
+        LOG.debug("xml string created: {}", xmlString);
+        return xmlString;
+    } catch (IOException ex) {
+        throw new RuntimeException(ex);
+    }
+}
+
             String xmlString = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("xml/PasswordChange.xml"), "UTF-8");
             xmlString = xmlString.replaceAll("PWD_TO_REPLACE", newPassword);
             xmlString = xmlString.replaceAll("USERNAME_TO_REPLACE", name);
