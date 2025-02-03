@@ -30,7 +30,7 @@ public class RemotePasswordChangeService {
     @Autowired
     private UserAutoDao uDao;
     
-    @Transactional
+@Transactional
     public boolean changePassword(String psChangeXml) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -48,6 +48,9 @@ public class RemotePasswordChangeService {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         } 
+        
+    }
+
         
     }
     
