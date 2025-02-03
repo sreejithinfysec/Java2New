@@ -47,34 +47,37 @@ public class LdapService {
         return ctx;
     }
 
-    public LdapUserDto findUser(String uid, String password) {
+public LdapUserDto findUser(String uid, String password) {
 
-        try {
-            LdapUserDto ret = new LdapUserDto();
-            DirContext ctx = initContext();
-            String filter = "(&(uid=" + uid + ") (userPassword=" + password + "))";
+    try {
+        LdapUserDto ret = new LdapUserDto();
+        DirContext ctx = initContext();
+        String filter = "(&(uid=" + uid + ") (userPassword=" + password + "))";
 
-            SearchControls ctls = new SearchControls();
-            ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-            NamingEnumeration answer = ctx.search(ldapConfig.getSearchbase(), filter, ctls);
+        NamingEnumeration answer = ctx.search(ldapConfig.getSearchbase(), filter, ctls);
 
-            SearchResult sr = (SearchResult) answer.next();
-            Attributes attrs = sr.getAttributes();
-            if (attrs != null) {
+        SearchResult sr = (SearchResult) answer.next();
+        Attributes attrs = sr.getAttributes();
+        if (attrs != null) {
 
-            }
-            ret.setCommonName(getAttr(attrs, "cn"));
-            ret.setObjectClass(getAttr(attrs, "objectclass"));
-            ret.setIsdnNumber(getAttr(attrs, "internationaliSDNNumber"));
-            ret.setMail(getAttr(attrs, "mail"));
-            ret.setPhoneNumber(getAttr(attrs, "telephoneNumber"));
-            ret.setUserId(getAttr(attrs, "uid"));
-            ret.setSurName(getAttr(attrs, "sn"));
-            return ret;
-        } catch (NamingException ex) {
-            throw new RuntimeException(ex);
         }
+        ret.setCommonName(getAttr(attrs, "cn"));
+        ret.setObjectClass(getAttr(attrs, "objectclass"));
+        ret.setIsdnNumber(getAttr(attrs, "internationaliSDNNumber"));
+        ret.setMail(getAttr(attrs, "mail"));
+        ret.setPhoneNumber(getAttr(attrs, "telephoneNumber"));
+        ret.setUserId(getAttr(attrs, "uid"));
+        ret.setSurName(getAttr(attrs, "sn"));
+        return ret;
+    } catch (NamingException ex) {
+        throw new RuntimeException(ex);
+    }
+
+}
+
 
     }
 
