@@ -31,23 +31,28 @@ public class RemotePasswordChangeService {
     private UserAutoDao uDao;
     
 @Transactional
-    public boolean changePassword(String psChangeXml) {
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new InputSource(new StringReader(psChangeXml)));
-            String userName = doc.getElementsByTagName("userName").item(0).getFirstChild().getNodeValue();
-            String pwd = doc.getElementsByTagName("pwd").item(0).getFirstChild().getNodeValue();
-            LOG.debug("Will change the password of user: {} to {}", userName, pwd);
-            User u = uDao.findUserByName(userName);
-            if (u != null) {
-                u.setPassword(pwd);
-                return true;
-            }
-            return false;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        } 
+public boolean changePassword(String psChangeXml) {
+    try {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new InputSource(new StringReader(psChangeXml)));
+        String userName = doc.getElementsByTagName("userName").item(0).getFirstChild().getNodeValue();
+        String pwd = doc.getElementsByTagName("pwd").item(0).getFirstChild().getNodeValue();
+        LOG.debug("Will change the password of user: {} to {}", userName, pwd);
+        User u = uDao.findUserByName(userName);
+        if (u != null) {
+            u.setPassword(pwd);
+            return true;
+        }
+        return false;
+    } catch (Exception ex) {
+        throw new RuntimeException(ex);
+    } 
+}
+
         
     }
 
