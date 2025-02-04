@@ -88,20 +88,26 @@ public class MovieService {
         }
     }
     
-    public Movie saveMovieFromXml(String xml){
-        try {
-            Movie m = new Movie();
-            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = db.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-            Element root = doc.getDocumentElement();
-            m.setTitle(getText(root, "title"));
-            m.setDescription(getText(root, "description"));
-            m.setGenre(getText(root, "genre"));
-            movieAutoDao.save(m);
-            return m;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        } 
+public Movie saveMovieFromXml(String xml){
+    try {
+        Movie m = new Movie();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        Element root = doc.getDocumentElement();
+        m.setTitle(getText(root, "title"));
+        m.setDescription(getText(root, "description"));
+        m.setGenre(getText(root, "genre"));
+        movieAutoDao.save(m);
+        return m;
+    } catch (Exception ex) {
+        throw new RuntimeException(ex);
+    } 
+}
+
     }
 
     private String getText(Element el, String tagName) {

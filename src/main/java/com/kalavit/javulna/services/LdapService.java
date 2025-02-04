@@ -47,12 +47,12 @@ public class LdapService {
         return ctx;
     }
 
-    public LdapUserDto findUser(String uid, String password) {
+public LdapUserDto findUser(String uid, String password) {
 
         try {
             LdapUserDto ret = new LdapUserDto();
             DirContext ctx = initContext();
-            String filter = "(&(uid=" + uid + ") (userPassword=" + password + "))";
+            String filter = "(&(uid=" + escapeLDAPFilter(uid) + ") (userPassword=" + escapeLDAPFilter(password) + "))";
 
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -74,7 +74,38 @@ public class LdapService {
             return ret;
         } catch (NamingException ex) {
             throw new RuntimeException(ex);
+        } finally {
+            // Close the context in a finally block to ensure it gets closed even if an exception occurs.
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // Handle exception
+                }
+            }
         }
+
+    }
+
+    private String escapeLDAPFilter(String value) {
+        // Escape special characters in the value to prevent LDAP injection
+        return value.replace("\\", "\\5c")
+                .replace("*", "\\2a")
+                .replace("(", "\\28")
+                .replace(")", "\\29");
+    }
+
+    private String getAttr(Attributes attrs, String key) {
+        try {
+            return attrs.get(new BasicAttribute(key)).get().toString();
+        } catch (NamingException e) {
+            return null;
+        }
+    }
+
+
+}
+
 
     }
 
