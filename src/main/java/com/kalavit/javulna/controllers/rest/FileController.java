@@ -49,29 +49,40 @@ public class FileController {
                 file.getContentType(), file.getSize());
     }
 
-    @GetMapping("/downloadFile")
-    public ResponseEntity<Resource> downloadFile(
-            @RequestParam(name = "fileName") String fileName,
-            HttpServletRequest request) {
-        // Load file as Resource
-        Resource resource = fileStorageService.loadFileAsResource(fileName);
+@GetMapping("/downloadFile")
+public ResponseEntity<Resource> downloadFile(
+        @RequestParam(name = "fileName") String fileName,
+        HttpServletRequest request) {
+    // Load file as Resource
+    Resource resource = fileStorageService.loadFileAsResource(fileName);
 
-        // Try to determine file's content type
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            LOG.warn("Could not determine file type.");
-        }
+    // Try to determine file's content type
+    String contentType = null;
+    try {
+        contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+    } catch (IOException ex) {
+        LOG.warn("Could not determine file type.");
+    }
 
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
+    // Fallback to the default content type if type could not be determined
+    if (contentType == null) {
+        contentType = "application/octet-stream";
+    }
+
+    // Escape the file name to prevent header injection
+    String safeFileName = StringEscapeUtils.escapeCsv(fileName);
+
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + safeFileName + "\"")
+            .body(resource);
+}
+
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
+
 }
